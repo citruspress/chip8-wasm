@@ -29,6 +29,8 @@ features = [
   'WebGlProgram',
   'WebGlShader',
   'Window',
+  'WebGlTexture',
+  'WebGlUniformLocation',
 ]
 
 [dev-dependencies]
