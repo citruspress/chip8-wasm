@@ -34,6 +34,20 @@ impl Screen {
         }
     }
 
+    pub fn get_screen_data(&self) -> [u8; WIDTH * HEIGHT] {
+        let mut pixels = [0; WIDTH * HEIGHT];
+
+        for y in 0..HEIGHT {
+            for x in 0..WIDTH {
+                if self.get(x, y) {
+                    pixels[y * WIDTH + x] = 255;
+                }
+            }
+        }
+
+        pixels
+    }
+
     fn get(&self, x: usize, y: usize) -> bool {
         let offset = (8 - x % 8) - 1;
         let pixel_mask = 1 << offset;

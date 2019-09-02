@@ -1,5 +1,3 @@
-use js_sys::WebAssembly;
-use wasm_bindgen::JsCast;
 use wasm_bindgen::JsValue;
 use web_sys::WebGlBuffer;
 use web_sys::WebGlRenderingContext;

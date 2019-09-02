@@ -26,13 +26,13 @@ pub fn update_texture(
 ) -> Result<(), JsValue> {
     context.bind_texture(WebGlRenderingContext::TEXTURE_2D, Some(&texture));
     context.tex_image_2d_with_i32_and_i32_and_i32_and_format_and_type_and_opt_u8_array(
-        WebGlRenderingContext::TEXTURE_2D, // target
-        0,                                 // mipmap
-        WebGlRenderingContext::RGB as i32, // format
-        width,                             // width
-        height,                            // height
-        0,                                 // border
-        WebGlRenderingContext::RGB,
+        WebGlRenderingContext::TEXTURE_2D,       // target
+        0,                                       // mipmap
+        WebGlRenderingContext::LUMINANCE as i32, // format
+        width,                                   // width
+        height,                                  // height
+        0,                                       // border
+        WebGlRenderingContext::LUMINANCE,
         WebGlRenderingContext::UNSIGNED_BYTE,
         Some(data),
     )?;

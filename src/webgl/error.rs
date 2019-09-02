@@ -7,7 +7,6 @@ pub enum WebGlError {
     Element(Element),
     Object(Object),
     String(String),
-    FailedToCreateTextureError,
 }
 
 impl From<JsValue> for WebGlError {
