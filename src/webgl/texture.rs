@@ -6,7 +6,12 @@ pub fn disable_mipmapping(context: &WebGlRenderingContext) {
     context.tex_parameteri(
         WebGlRenderingContext::TEXTURE_2D,
         WebGlRenderingContext::TEXTURE_MIN_FILTER,
-        WebGlRenderingContext::LINEAR as i32,
+        WebGlRenderingContext::NEAREST as i32,
+    );
+    context.tex_parameteri(
+        WebGlRenderingContext::TEXTURE_2D,
+        WebGlRenderingContext::TEXTURE_MAG_FILTER,
+        WebGlRenderingContext::NEAREST as i32,
     );
 }
 

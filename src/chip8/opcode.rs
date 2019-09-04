@@ -1,0 +1,98 @@
+#[derive(Debug)]
+pub enum Opcode {
+    SYS,
+    CLS,
+    RET,
+    JP(u16),
+    CALL(u16),
+    SE(u8, u8),
+    SNE(u8, u8),
+    SER(u8, u8),
+    LD(u8, u8),
+    ADD(u8, u8),
+    LDR(u8, u8),
+    OR(u8, u8),
+    AND(u8, u8),
+    XOR(u8, u8),
+    ADDR(u8, u8),
+    SUBR(u8, u8),
+    SHR(u8),
+    SUBN(u8, u8),
+    SHL(u8),
+    SNER(u8, u8),
+    LDI(u16),
+    JPR(u16),
+    RND(u8, u8),
+    DRW(u8, u8, u8),
+    SKP(u8),
+    SKNP(u8),
+    LDDT(u8),
+    LDK(u8),
+    DTLD(u8),
+    STLD(u8),
+    ADDI(u8),
+    LDF(u8),
+    LDB(u8),
+    LDIR(u8),
+    LDRI(u8),
+}
+
+pub fn decode(opcode: u16) -> Opcode {
+    match opcode & 0xF000 {
+        0x0000 => match opcode & 0x00FF {
+            0x00E0 => Opcode::CLS,
+            0x00EE => Opcode::RET,
+            _ => Opcode::SYS,
+        },
+        0x1000 => Opcode::JP(opcode & 0x0FFF),
+        0x2000 => Opcode::CALL(opcode & 0x0FFF),
+        0x3000 => Opcode::SE(((opcode & 0xF00) >> 8) as u8, opcode as u8 & 0xFF),
+        0x4000 => Opcode::SNE(((opcode & 0xF00) >> 8) as u8, opcode as u8 & 0xFF),
+        0x5000 => Opcode::SER(((opcode & 0xF00) >> 8) as u8, ((opcode & 0xF0) >> 4) as u8),
+        0x6000 => Opcode::LD(((opcode & 0xF00) >> 8) as u8, opcode as u8 & 0xFF),
+        0x7000 => Opcode::ADD(((opcode & 0xF00) >> 8) as u8, opcode as u8 & 0xFF),
+        0x8000 => match opcode & 0x000F {
+            0x0000 => Opcode::LDR(((opcode & 0xF00) >> 8) as u8, ((opcode & 0xF0) >> 4) as u8),
+            0x0001 => Opcode::OR(((opcode & 0xF00) >> 8) as u8, ((opcode & 0xF0) >> 4) as u8),
+            0x0002 => Opcode::AND(((opcode & 0xF00) >> 8) as u8, ((opcode & 0xF0) >> 4) as u8),
+            0x0003 => Opcode::XOR(((opcode & 0xF00) >> 8) as u8, ((opcode & 0xF0) >> 4) as u8),
+            0x0004 => Opcode::ADDR(((opcode & 0xF00) >> 8) as u8, ((opcode & 0xF0) >> 4) as u8),
+            0x0005 => Opcode::SUBR(((opcode & 0xF00) >> 8) as u8, ((opcode & 0xF0) >> 4) as u8),
+            0x0006 => Opcode::SHR(((opcode & 0xF00) >> 8) as u8),
+            0x0007 => Opcode::SUBN(((opcode & 0xF00) >> 8) as u8, ((opcode & 0xF0) >> 4) as u8),
+            0x000E => Opcode::SHL(((opcode & 0xF00) >> 8) as u8),
+            _ => panic!("unkown opcode"),
+        },
+        0x9000 => Opcode::SNER(((opcode & 0xF00) >> 8) as u8, ((opcode & 0xF0) >> 4) as u8),
+        0xA000 => Opcode::LDI(opcode & 0xFFF),
+        0xB000 => Opcode::JPR(opcode & 0xFFF),
+        0xC000 => Opcode::RND(((opcode & 0xF00) >> 8) as u8, opcode as u8 & 0xFF),
+        0xD000 => Opcode::DRW(
+            ((opcode & 0xF00) >> 8) as u8,
+            ((opcode & 0xF0) >> 4) as u8,
+            opcode as u8 & 0xF,
+        ),
+        0xE000 => match opcode & 0x00FF {
+            0x009E => Opcode::SKP(((opcode & 0xF00) >> 8) as u8),
+            0x00A1 => Opcode::SKNP(((opcode & 0xF00) >> 8) as u8),
+            _ => panic!("unkown opcode"),
+        },
+        0xF000 => match opcode & 0x00FF {
+            0x0007 => Opcode::LDDT(((opcode & 0xF00) >> 8) as u8),
+            0x000A => Opcode::LDK(((opcode & 0xF00) >> 8) as u8),
+            0x0015 => Opcode::DTLD(((opcode & 0xF00) >> 8) as u8),
+            0x0018 => Opcode::STLD(((opcode & 0xF00) >> 8) as u8),
+            0x001E => Opcode::ADDI(((opcode & 0xF00) >> 8) as u8),
+            0x0029 => Opcode::LDF(((opcode & 0xF00) >> 8) as u8),
+            0x0033 => Opcode::LDB(((opcode & 0xF00) >> 8) as u8),
+            0x0055 => Opcode::LDIR(((opcode & 0xF00) >> 8) as u8),
+            0x0065 => Opcode::LDRI(((opcode & 0xF00) >> 8) as u8),
+            _ => {
+                let s = format!("unkown opcode {:x}", opcode);
+                web_sys::console::log_1(&s.into());
+                panic!(format!("unkown opcode: {}", opcode))
+            }
+        },
+        _ => panic!("unknown opcode"),
+    }
+}

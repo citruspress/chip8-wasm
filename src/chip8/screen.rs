@@ -14,24 +14,38 @@ impl Screen {
         }
     }
 
+    pub fn is_dirty(&self) -> bool {
+        true
+    }
+
     pub fn clear(&mut self) {
         self.pixels = [0; WIDTH * HEIGHT / 8];
     }
 
-    pub fn draw_sprite(&mut self, x: usize, mut y: usize, data: &[u8]) {
+    pub fn draw_sprite(&mut self, x: usize, mut y: usize, data: &[u8]) -> bool {
+        let mut collision = false;
         for line in data {
             let first_pixel_offset = x % 8;
             let index = self.index(x, y);
             let first_row = line >> first_pixel_offset as u8;
+            if self.pixels[index] & first_row > 0 {
+                collision = true;
+            }
             self.pixels[index] = first_row ^ self.pixels[index];
 
             if first_pixel_offset > 0 {
+                let next_index = self.index(x + 1, y);
                 let second_pixel_offset = 8 - first_pixel_offset;
                 let second_row = line << second_pixel_offset;
-                self.pixels[index + 1] = second_row ^ self.pixels[index + 1];
+                if self.pixels[next_index] & second_row > 0 {
+                    collision = true;
+                }
+                self.pixels[next_index] = second_row ^ self.pixels[next_index];
             }
             y += 1;
         }
+
+        collision
     }
 
     pub fn get_screen_data(&self) -> [u8; WIDTH * HEIGHT] {
@@ -54,7 +68,9 @@ impl Screen {
         self.pixels[self.index(x, y)] & pixel_mask == pixel_mask
     }
 
-    fn index(&self, x: usize, y: usize) -> usize {
+    fn index(&self, mut x: usize, mut y: usize) -> usize {
+        x %= WIDTH;
+        y %= HEIGHT;
         (y * WIDTH + x) / 8
     }
 }
