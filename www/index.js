@@ -25,7 +25,7 @@ window.addEventListener("keyup", event => {
     wasm.on_key_state_changed(key_state);
 });
 
-fetch('https://github.com/badlogic/chip8/blob/master/roms/tetris.rom?raw=true')
+fetch('/roms/tetris.rom')
     .then(response => response.arrayBuffer())
     .then(buffer => {
         wasm.load(new Uint8Array(buffer));
