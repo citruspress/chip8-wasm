@@ -13,6 +13,7 @@ pub struct Cpu {
     memory: [u8; 4096],
     soundtimer: u8,
     delaytimer: u8,
+    pub key_state: u8,
     pub screen: Screen,
 }
 
@@ -56,6 +57,7 @@ impl Default for Cpu {
             soundtimer: 0,
             delaytimer: 0,
             screen: Screen::new(),
+            key_state: 0,
         }
     }
 }
@@ -242,25 +244,36 @@ impl Cpu {
         y = self.register[y as usize];
 
         self.register[0xF] = 0;
-        let sprite_data = &self.memory[self.i as usize..(self.i + n as u16) as usize];
+        let sprite_data = &self.memory[(self.i) as usize..(n as u16 + self.i) as usize];
 
         if self.screen.draw_sprite(x as usize, y as usize, sprite_data) {
             self.register[0xF] = 1;
         }
     }
 
-    fn skip_when_key_pressed(&mut self, _x: u8) {}
+    fn skip_when_key_pressed(&mut self, x: u8) {
+        let key = 1 << self.register[x as usize];
+        if key & self.key_state == key {
+            self.pc += 2;
+        }
+    }
 
-    fn skip_when_key_not_pressed(&mut self, _x: u8) {
-        self.pc += 2;
+    fn skip_when_key_not_pressed(&mut self, x: u8) {
+        let key = 1 << self.register[x as usize];
+        if key & self.key_state != key {
+            self.pc += 2;
+        }
     }
 
     fn load_delay_timer(&mut self, x: u8) {
         self.register[x as usize] = self.delaytimer;
     }
 
-    fn wait_for_keypress(&mut self, _x: u8) {
-        self.pc -= 2;
+    fn wait_for_keypress(&mut self, x: u8) {
+        let key = self.register[x as usize];
+        if key & self.key_state != key {
+            self.pc -= 2;
+        }
     }
 
     fn set_delay_timer(&mut self, x: u8) {

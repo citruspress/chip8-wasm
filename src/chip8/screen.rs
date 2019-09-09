@@ -5,42 +5,66 @@ const HEIGHT: usize = 32;
 /// a bit in a bitfield.
 pub struct Screen {
     pixels: [u8; WIDTH * HEIGHT / 8],
+    dirty: bool,
 }
 
 impl Screen {
     pub fn new() -> Screen {
         Screen {
             pixels: [0; WIDTH * HEIGHT / 8],
+            dirty: false,
         }
     }
 
     pub fn is_dirty(&self) -> bool {
-        true
+        self.dirty
+    }
+
+    pub fn reset_dirty(&mut self) {
+        self.dirty = false;
     }
 
     pub fn clear(&mut self) {
+        self.dirty = true;
         self.pixels = [0; WIDTH * HEIGHT / 8];
     }
 
     pub fn draw_sprite(&mut self, x: usize, mut y: usize, data: &[u8]) -> bool {
+        self.dirty = true;
+
         let mut collision = false;
         for line in data {
+            println!("Line: {:b}", line);
+
             let first_pixel_offset = x % 8;
             let index = self.index(x, y);
             let first_row = line >> first_pixel_offset as u8;
             if self.pixels[index] & first_row > 0 {
                 collision = true;
             }
+            println!("Current pixel: {:b}", self.pixels[index]);
+
             self.pixels[index] = first_row ^ self.pixels[index];
 
+            println!("Offset: {}", first_pixel_offset);
+            println!("First row: {:b}", first_row);
+
+            println!("Pixel after: {:b}", self.pixels[index]);
+
             if first_pixel_offset > 0 {
-                let next_index = self.index(x + 1, y);
+                let next_index = self.index(x + 8, y);
+                println!("Current next pixel: {:b}", self.pixels[next_index]);
+
                 let second_pixel_offset = 8 - first_pixel_offset;
                 let second_row = line << second_pixel_offset;
                 if self.pixels[next_index] & second_row > 0 {
                     collision = true;
                 }
                 self.pixels[next_index] = second_row ^ self.pixels[next_index];
+
+                println!("Next offset: {}", first_pixel_offset);
+                println!("Second row: {:b}", second_row);
+                println!("Pixel after: {:b}", self.pixels[next_index]);
             }
             y += 1;
         }
@@ -162,5 +186,24 @@ mod tests {
             assert_eq!(true, screen.get(x, 0));
         }
         assert_eq!(false, screen.get(5 + 8, 0));
+    }
+
+    #[test]
+    fn draw_with_half_sprite_offset_2() {
+        let mut screen = Screen::new();
+
+        let sprite = vec![0xFF];
+        screen.draw_sprite(7, 0, &sprite);
+
+        assert_eq!(false, screen.get(6, 0));
+        assert_eq!(true, screen.get(7, 0));
+        assert_eq!(true, screen.get(8, 0));
+        assert_eq!(true, screen.get(9, 0));
+        assert_eq!(true, screen.get(10, 0));
+        assert_eq!(true, screen.get(11, 0));
+        assert_eq!(true, screen.get(12, 0));
+        assert_eq!(true, screen.get(13, 0));
+        assert_eq!(true, screen.get(14, 0));
+        assert_eq!(false, screen.get(15, 0));
     }
 }

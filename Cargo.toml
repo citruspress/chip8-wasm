@@ -21,6 +21,7 @@ features = [
   'Document',
   'Element',
   'HtmlCanvasElement',
+  'KeyboardEvent',
   'Performance',
   'WebGlBuffer',
   'WebGlRenderingContext',

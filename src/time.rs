@@ -16,7 +16,7 @@ impl GameTime {
         self.time = current_time;
     }
 
-    pub fn elapsed(&self) -> f64 {
-        self.elapsed
+    pub fn elapsed_secs(&self) -> f64 {
+        self.elapsed / 1000f64
     }
 }

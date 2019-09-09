@@ -10,7 +10,7 @@ use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 
-const CYCLES_PER_SECOND: u16 = 800;
+const CYCLES_PER_SECOND: u16 = 400;
 
 struct Data {
     pub game_time: time::GameTime,
@@ -66,7 +66,7 @@ pub fn start() -> Result<(), JsValue> {
             let mut data = data.borrow_mut();
 
             data.game_time.update(now());
-            let steps = CYCLES_PER_SECOND as f64 * (data.game_time.elapsed() / 1000f64);
+            let steps = CYCLES_PER_SECOND as f64 * data.game_time.elapsed_secs();
 
             for _ in 0..steps as u64 {
                 data.cpu.step();
@@ -74,11 +74,23 @@ pub fn start() -> Result<(), JsValue> {
 
             if data.cpu.screen.is_dirty() {
                 data.renderer.render(&data.cpu.screen);
+                data.cpu.screen.reset_dirty();
             }
         });
 
         request_animation_frame(f.borrow().as_ref().unwrap());
     }) as Box<dyn FnMut()>));
     request_animation_frame(g.borrow().as_ref().unwrap());
+    Ok(())
+}
+
+#[wasm_bindgen]
+pub fn on_key_state_changed(key_state: u8) -> Result<(), JsValue> {
+    DATA.with(|data| {
+        let mut data = data.borrow_mut();
+
+        data.cpu.key_state = key_state;
+    });
+
     Ok(())
 }
