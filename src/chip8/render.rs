@@ -82,7 +82,6 @@ impl Renderer {
     pub fn render(&self, screen: &Screen) {
         let data = screen.get_screen_data();
         texture::update_texture(&self.context, &self.texture, 64, 32, &data.to_vec()).expect("");
-        texture::update_texture(&self.context, &self.texture, 64, 32, &data.to_vec()).expect("");
 
         self.context.clear(WebGlRenderingContext::COLOR_BUFFER_BIT);
         self.context
